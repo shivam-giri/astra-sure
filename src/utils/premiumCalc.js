@@ -1,0 +1,1 @@
+export function calcPremium(a,s,l){return Math.round((s*0.002)*(a>45?1.3:1)*(l?1.4:1));}

@@ -1,1 +1,2 @@
-# astra-sure-frontend
+# AstraSure Frontend
+React + MUI + Router skeleton.
