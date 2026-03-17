@@ -11,11 +11,12 @@ import {
   CircularProgress,
   InputAdornment,
   IconButton,
+  Divider,
   useTheme,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { signup } from "../services/auth";
+import { signup, googleOAuthLogin } from "../services/auth";
 
 export default function Signup() {
   const theme = useTheme();
@@ -170,6 +171,26 @@ export default function Signup() {
               Already have an account? Login →
             </Button>
           </Box>
+
+          {/* Google OAuth */}
+          <Divider sx={{ my: 3 }}>or</Divider>
+          <Button
+            fullWidth
+            variant="outlined"
+            size="large"
+            onClick={googleOAuthLogin}
+            startIcon={
+              <Box
+                component="img"
+                src="https://developers.google.com/identity/images/g-logo.png"
+                alt="Google"
+                sx={{ width: 20, height: 20 }}
+              />
+            }
+            sx={{ textTransform: "none", fontWeight: 600 }}
+          >
+            Sign up with Google
+          </Button>
         </CardContent>
       </Card>
     </Box>

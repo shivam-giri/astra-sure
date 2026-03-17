@@ -1,6 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import passport from '../config/passport.js';
 import User from '../models/User.js';
 import {
   createAccessToken, createRefreshToken, createResetToken,
@@ -164,5 +165,43 @@ router.post('/reset', async (req, res) => {
     return res.status(400).json({ message: 'Invalid or expired reset token' });
   }
 });
+
+// ====== GET /auth/google — start OAuth flow
+router.get('/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+// ====== GET /auth/google/callback — Google redirects here after consent
+router.get('/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: `${process.env.CLIENT_ORIGIN}/login?error=google_failed` }),
+  async (req, res) => {
+    try {
+      const user = req.user;
+      const accessToken = createAccessToken(user._id);
+      const refreshToken = createRefreshToken(user._id);
+
+      // Set httpOnly refresh cookie (same as regular login)
+      res.cookie('refresh_token', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/auth/refresh',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      // Redirect to frontend with access token in query param
+      const params = new URLSearchParams({
+        token: accessToken,
+        name: user.name,
+        id: user._id.toString(),
+        email: user.email,
+      });
+      return res.redirect(`${process.env.CLIENT_ORIGIN}/oauth-callback?${params.toString()}`);
+    } catch (err) {
+      console.error('Google callback error:', err);
+      return res.redirect(`${process.env.CLIENT_ORIGIN}/login?error=google_failed`);
+    }
+  }
+);
 
 export default router;

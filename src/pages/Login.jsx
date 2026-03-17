@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import { useState } from "react";
 import {
   Box,
@@ -13,11 +12,12 @@ import {
   InputAdornment,
   Alert,
   CircularProgress,
+  Divider,
   useTheme,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate, useLocation, Link as RouterLink } from "react-router-dom";
-import { login } from "../services/auth";
+import { login, googleOAuthLogin } from "../services/auth";
 import { useAuth } from "../context/AuthContext";
 
 function isEmailish(value) {
@@ -214,6 +214,26 @@ export default function Login() {
               </Typography>
             </Box>
           </Box>
+
+          {/* Google OAuth */}
+          <Divider sx={{ my: 3 }}>or</Divider>
+          <Button
+            fullWidth
+            variant="outlined"
+            size="large"
+            onClick={googleOAuthLogin}
+            startIcon={
+              <Box
+                component="img"
+                src="https://developers.google.com/identity/images/g-logo.png"
+                alt="Google"
+                sx={{ width: 20, height: 20 }}
+              />
+            }
+            sx={{ textTransform: "none", fontWeight: 600 }}
+          >
+            Continue with Google
+          </Button>
         </CardContent>
       </Card>
     </Box>

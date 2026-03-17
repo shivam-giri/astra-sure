@@ -125,3 +125,9 @@ export async function api(path, { method = 'GET', headers = {}, body, retry = tr
   }
   return asJson(res);
 }
+
+// ---------- Google OAuth ----------
+// Just redirects the browser — the backend handles everything
+export function googleOAuthLogin() {
+  window.location.href = `${API}/auth/google`;
+}
