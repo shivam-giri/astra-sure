@@ -12,6 +12,7 @@ import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import OAuthCallback from "./pages/OAuthCallback";
+import PhoneLogin from "./pages/PhoneLogin";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="/forgot" element={<ForgotPassword />} />
           <Route path="/reset" element={<ResetPassword />} />
           <Route path="/oauth-callback" element={<OAuthCallback />} />
+          <Route path="/phone-login" element={<PhoneLogin />} />
         </Routes>
       </MainLayout>
     </BrowserRouter>

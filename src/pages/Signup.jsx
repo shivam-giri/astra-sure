@@ -191,6 +191,17 @@ export default function Signup() {
           >
             Sign up with Google
           </Button>
+
+          {/* Phone OTP Login */}
+          <Button
+            fullWidth
+            variant="outlined"
+            size="large"
+            onClick={() => navigate("/phone-login")}
+            sx={{ textTransform: "none", fontWeight: 600, mt: 1 }}
+          >
+            Sign up with Phone
+          </Button>
         </CardContent>
       </Card>
     </Box>

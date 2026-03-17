@@ -8,6 +8,8 @@ const UserSchema = new mongoose.Schema(
     passwordHash: { type: String, required: false },
     // Google OAuth
     googleId: { type: String, sparse: true, unique: true },
+    // Phone OTP – stored after first successful verification
+    phone: { type: String, sparse: true, unique: true },
     // increment this on password reset to invalidate old reset tokens
     resetVersion: { type: Number, default: 0 }
   },

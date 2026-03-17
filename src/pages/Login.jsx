@@ -234,6 +234,17 @@ export default function Login() {
           >
             Continue with Google
           </Button>
+
+          {/* Phone OTP Login */}
+          <Button
+            fullWidth
+            variant="outlined"
+            size="large"
+            onClick={() => navigate("/phone-login")}
+            sx={{ textTransform: "none", fontWeight: 600, mt: 1 }}
+          >
+            Continue with Phone
+          </Button>
         </CardContent>
       </Card>
     </Box>

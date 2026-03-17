@@ -130,4 +130,28 @@ export async function api(path, { method = 'GET', headers = {}, body, retry = tr
 // Just redirects the browser — the backend handles everything
 export function googleOAuthLogin() {
   window.location.href = `${API}/auth/google`;
+}
+
+// ---------- Phone OTP Login ----------
+export async function sendOtp(phone) {
+  const res = await fetch(`${API}/auth/phone/send-otp`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone })
+  });
+  return asJson(res);
+}
+
+export async function verifyOtp({ phone, code }) {
+  const res = await fetch(`${API}/auth/phone/verify-otp`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone, code })
+  });
+  const data = await asJson(res);
+  
+  const key = 'astra_access_token';
+  localStorage.setItem(key, data.accessToken);
+  sessionStorage.removeItem(key);
+  return data;
 }

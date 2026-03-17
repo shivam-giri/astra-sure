@@ -8,6 +8,7 @@ import {
   verifyAccessToken, verifyRefreshToken, verifyResetToken
 } from '../utils/jwt.js';
 import { sendResetEmail } from '../utils/email.js';
+import { sendOtp, verifyOtp } from '../utils/twilio.js';
 
 const router = express.Router();
 
@@ -203,5 +204,71 @@ router.get('/google/callback',
     }
   }
 );
+
+// ====== Phone OTP helpers
+const phoneSchema = z.object({
+  phone: z.string().regex(/^\+[1-9]\d{6,14}$/, 'Phone must be in E.164 format, e.g. +919876543210')
+});
+
+const verifyOtpSchema = z.object({
+  phone: z.string().min(1),
+  code: z.string().length(6)
+});
+
+// ====== POST /auth/phone/send-otp
+router.post('/phone/send-otp', async (req, res) => {
+  const parsed = phoneSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ errors: parsed.error.flatten() });
+
+  try {
+    await sendOtp(parsed.data.phone);
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('Twilio sendOtp error:', err.message);
+    return res.status(500).json({ message: 'Failed to send OTP. Check Twilio credentials.' });
+  }
+});
+
+// ====== POST /auth/phone/verify-otp
+router.post('/phone/verify-otp', async (req, res) => {
+  const parsed = verifyOtpSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ errors: parsed.error.flatten() });
+
+  const { phone, code } = parsed.data;
+
+  try {
+    const approved = await verifyOtp(phone, code);
+    if (!approved) return res.status(400).json({ message: 'Invalid or expired OTP.' });
+
+    // Find-or-create user by phone
+    let user = await User.findOne({ phone });
+    if (!user) {
+      user = await User.create({
+        name: phone, // placeholder name; user can update later
+        email: `${phone.replace('+', '')}@phone.astrasure.app`, // synthetic unique email
+        phone,
+      });
+    }
+
+    const accessToken = createAccessToken(user._id);
+    const refreshToken = createRefreshToken(user._id);
+
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/auth/refresh',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.json({
+      accessToken,
+      user: { id: user._id.toString(), name: user.name, email: user.email, phone: user.phone }
+    });
+  } catch (err) {
+    console.error('Twilio verifyOtp error:', err.message);
+    return res.status(500).json({ message: 'OTP verification failed.' });
+  }
+});
 
 export default router;
