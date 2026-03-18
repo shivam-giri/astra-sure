@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import session from 'express-session';
+import MongoStore from 'connect-mongo';
 import mongoose from 'mongoose';
 import passport from './src/config/passport.js';
 import authRoutes from './src/routes/auth.js';
@@ -29,6 +30,10 @@ app.use(
     secret: process.env.SESSION_SECRET || 'change_me_in_prod',
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/astra_auth',
+      ttl: 24 * 60 * 60 // session TTL in seconds (1 day)
+    }),
     cookie: { secure: process.env.NODE_ENV === 'production', sameSite: 'lax' },
   })
 );
